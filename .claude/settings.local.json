@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import PyQt6; import PIL; import numpy; print\\(''PyQt6:'', PyQt6.__file__\\); print\\(''PIL:'', PIL.__version__\\); print\\(''numpy:'', numpy.__version__\\)\")",
+      "Bash(pip install:*)",
+      "Bash(python -c \"import PyQt6.QtCore; print\\(PyQt6.QtCore.PYQT_VERSION_STR\\)\")",
+      "Bash(python -c \"from PySide6.QtWidgets import QApplication; print\\(''PySide6 works!''\\)\")",
+      "Bash(python -c \"import tkinter; print\\(''tkinter available:'', tkinter.TkVersion\\)\")"
+    ]
+  }
+}

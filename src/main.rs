@@ -1,67 +1,26 @@
-mod hex_math;
-mod model;
-mod renderer;
-mod editor;
-mod ui;
-mod app;
+pub mod types;
+pub mod hex;
+pub mod sprites;
+pub mod editor;
+pub mod project;
+pub mod app;
 
-use std::sync::Arc;
-use winit::application::ApplicationHandler;
-use winit::event::WindowEvent;
-use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop};
-use winit::window::{Window, WindowAttributes, WindowId};
-
-struct WinHandler {
-    window: Option<Arc<Window>>,
-    app: Option<app::App>,
-}
-
-impl ApplicationHandler for WinHandler {
-    fn resumed(&mut self, event_loop: &ActiveEventLoop) {
-        if self.window.is_none() {
-            let attrs = WindowAttributes::default()
-                .with_title("Hex Terrain Map Editor")
-                .with_inner_size(winit::dpi::LogicalSize::new(1400, 900));
-            let window = Arc::new(event_loop.create_window(attrs).unwrap());
-            self.app = Some(app::App::new(window.clone()));
-            self.window = Some(window);
-        }
-    }
-
-    fn window_event(
-        &mut self,
-        event_loop: &ActiveEventLoop,
-        _id: WindowId,
-        event: WindowEvent,
-    ) {
-        let Some(app) = &mut self.app else { return };
-        let Some(window) = &self.window else { return };
-
-        match &event {
-            WindowEvent::CloseRequested => event_loop.exit(),
-            WindowEvent::Resized(size) => {
-                app.resize(*size);
-                window.request_redraw();
-            }
-            WindowEvent::RedrawRequested => {
-                app.update();
-                app.render(window);
-            }
-            _ => {
-                app.handle_input(window, &event);
-                window.request_redraw();
-            }
-        }
-    }
-}
-
-fn main() {
+fn main() -> eframe::Result<()> {
     env_logger::init();
-    let event_loop = EventLoop::new().unwrap();
-    event_loop.set_control_flow(ControlFlow::Poll);
-    let mut handler = WinHandler {
-        window: None,
-        app: None,
+
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default()
+            .with_inner_size([1600.0, 900.0])
+            .with_title("Hex Map & Sprite Editor"),
+        ..Default::default()
     };
-    event_loop.run_app(&mut handler).unwrap();
+
+    eframe::run_native(
+        "hex-map-editor",
+        options,
+        Box::new(|cc| {
+            egui_extras::install_image_loaders(&cc.egui_ctx);
+            Ok(Box::new(app::HexEditorApp::new(cc)))
+        }),
+    )
 }
